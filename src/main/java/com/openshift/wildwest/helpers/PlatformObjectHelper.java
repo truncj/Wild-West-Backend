@@ -28,6 +28,8 @@ public class PlatformObjectHelper {
 		platformObjects.addAll(this.getServices());
 		platformObjects.addAll(this.getRoutes());
 		platformObjects.addAll(this.getConfigMaps());
+		platformObjects.addAll(this.getBuildConfigs());
+		platformObjects.addAll(this.getDeploymentConfigs());
 
 		return platformObjects;
 
