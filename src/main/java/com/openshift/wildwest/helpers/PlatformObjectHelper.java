@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import com.openshift.wildwest.models.PlatformObject;
-import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.DeploymentConfig;
@@ -26,9 +24,10 @@ public class PlatformObjectHelper {
 
 		ArrayList<PlatformObject> platformObjects = new ArrayList<>();
 		platformObjects.addAll(this.getPods());
-		platformObjects.addAll(this.getPVs());
+		platformObjects.addAll(this.getPVCs());
 		platformObjects.addAll(this.getServices());
 		platformObjects.addAll(this.getRoutes());
+		platformObjects.addAll(this.getConfigMaps());
 
 		return platformObjects;
 
@@ -36,7 +35,7 @@ public class PlatformObjectHelper {
 
 	public PlatformObject getRandomPlatformObject() {
 		List<PlatformObject> theObjects = this.getPlatformObjects();
-		
+
 
 		return theObjects.get(new Random().nextInt(theObjects.size()));
 	}
@@ -76,43 +75,53 @@ public class PlatformObjectHelper {
 
 
 	private List<PlatformObject> getBuildConfigs() {
-		ArrayList<PlatformObject> theList = new ArrayList<>();
+		ArrayList<PlatformObject> resourceList = new ArrayList<>();
 		List<BuildConfig> theItems = client.buildConfigs().list().getItems();
 		for (BuildConfig currConfig : theItems) {
-			theList.add(new PlatformObject(currConfig.getMetadata().getUid(), currConfig.getMetadata().getName(),
+			resourceList.add(new PlatformObject(currConfig.getMetadata().getUid(), currConfig.getMetadata().getName(),
 					"BUILD_CONFIG"));
 		}
-		return theList;
+		return resourceList;
 	}
 
-	private List<PlatformObject> getPVs() {
-		ArrayList<PlatformObject> theList = new ArrayList<>();
+	private List<PlatformObject> getPVCs() {
+		ArrayList<PlatformObject> resourceList = new ArrayList<>();
 		List<PersistentVolumeClaim> theItems = client.persistentVolumeClaims().list().getItems();
 		for (PersistentVolumeClaim currConfig : theItems) {
-			theList.add(
+			resourceList.add(
 					new PlatformObject(currConfig.getMetadata().getUid(), currConfig.getMetadata().getName(), "PVC"));
 		}
-		return theList;
+		return resourceList;
 	}
 
 	private List<PlatformObject> getServices() {
-		ArrayList<PlatformObject> theList = new ArrayList<>();
+		ArrayList<PlatformObject> resourceList = new ArrayList<>();
 		List<Service> theItems = client.services().list().getItems();
 		for (Service currConfig : theItems) {
-			theList.add(new PlatformObject(currConfig.getMetadata().getUid(), currConfig.getMetadata().getName(),
+			resourceList.add(new PlatformObject(currConfig.getMetadata().getUid(), currConfig.getMetadata().getName(),
 					"SERVICE"));
 		}
-		return theList;
+		return resourceList;
 	}
 
 	private List<PlatformObject> getRoutes() {
-		ArrayList<PlatformObject> theList = new ArrayList<>();
+		ArrayList<PlatformObject> resourceList = new ArrayList<>();
 		List<Route> theItems = client.routes().list().getItems();
 		for (Route currConfig : theItems) {
-			theList.add(
+			resourceList.add(
 					new PlatformObject(currConfig.getMetadata().getUid(), currConfig.getMetadata().getName(), "ROUTE"));
 		}
-		return theList;
+		return resourceList;
+	}
+
+	private List<PlatformObject> getConfigMaps() {
+		ArrayList<PlatformObject> resourceList = new ArrayList<>();
+		List<ConfigMap> theItems = client.configMaps().list().getItems();
+		for (ConfigMap currConfig : theItems) {
+			resourceList.add(
+					new PlatformObject(currConfig.getMetadata().getUid(), currConfig.getMetadata().getName(), "CONFIG_MAP"));
+		}
+		return resourceList;
 	}
 
 	public void deletePlatformObject(String gameID, String objectID, String objectType, String objectName) {
@@ -126,7 +135,7 @@ public class PlatformObjectHelper {
 				client.builds().withName(objectName).delete();
 				break;
 		}
-		
+
 	}
 
 }
